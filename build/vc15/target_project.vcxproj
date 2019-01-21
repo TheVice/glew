@@ -31,7 +31,7 @@
     <glew_generator_destination>$(ProjectDir)glew_generator</glew_generator_destination>
     <glew_generator_destination Condition="Exists('$(ProjectDir)..\..\auto')">$(ProjectDir)..\..\auto\glew_generator</glew_generator_destination>
     <glew_generator_destination Condition="''!='$(NO_GIT)'">$(glew_generator_url)</glew_generator_destination>
-    <glew_generator_hash>...</glew_generator_hash>
+    <glew_generator_hash>089a0907df42229498e642404d5f76aaab0dd82b</glew_generator_hash>
   </PropertyGroup>
 
   <Target Name="download_glew_generator" Condition="''=='$(NO_GIT)'">

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project InitialTargets="source_generation_for_glew_static" DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -229,4 +229,31 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+
+  <ItemGroup Label="ProjectsToBuild">
+    <ProjectsToBuild Include="$(ProjectDir)target_project.vcxproj" />
+  </ItemGroup>
+
+  <Target Name="source_generation_for_glew_static"
+    Condition="!Exists('$(ProjectDir)..\..\src\glew.c') Or !Exists('$(ProjectDir)..\..\include\GL\glew.h') Or !Exists('$(ProjectDir)..\..\include\GL\wglew.h') Or !Exists('$(ProjectDir)..\glew.rc')">
+
+    <Message Condition="!Exists('$(ProjectDir)..\..\src\glew.c')" Importance="normal" Text="File '$(ProjectDir)..\..\src\glew.c' is missing." />
+    <Message Condition="!Exists('$(ProjectDir)..\..\include\GL\glew.h')" Importance="normal" Text="File '$(ProjectDir)..\..\include\GL\glew.h' is missing." />
+    <Message Condition="!Exists('$(ProjectDir)..\..\include\GL\wglew.h')" Importance="normal" Text="File '$(ProjectDir)..\..\include\GL\wglew.h' is missing." />
+    <Message Condition="!Exists('$(ProjectDir)..\glew.rc')" Importance="normal" Text="File '$(ProjectDir)..\glew.rc' is missing." />
+
+    <Message Importance="normal" Text="Starting glew generation process." />
+
+    <MSBuild
+      Condition="'$(Platform)' == 'Win32' Or '$(Platform)' == 'x64'"
+      BuildInParallel="true"
+      Projects="@(ProjectsToBuild)"
+      Properties="Configuration=Release;Platform=$(Platform);PlatformToolset=$(PlatformToolset);LOCAL_FOLDER=$(LOCAL_FOLDER);NO_GIT=$(NO_GIT)" />
+
+    <MSBuild
+      Condition="'$(Platform)' != 'Win32' And '$(Platform)' != 'x64'"
+      BuildInParallel="true"
+      Projects="@(ProjectsToBuild)"
+      Properties="Configuration=Release;Platform=Win32;PlatformToolset=$(PlatformToolset);LOCAL_FOLDER=$(LOCAL_FOLDER);NO_GIT=$(NO_GIT)" />
+  </Target>
 </Project>
