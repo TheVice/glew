@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project InitialTargets="download_glew_generator;glew_generator" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Condition="'$(Configuration)'==''">
+    <Configuration>Release</Configuration>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'==''">
+    <Platform>Win32</Platform>
+  </PropertyGroup>
+
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+
+  <PropertyGroup Label="glew_generator_repository">
+    <glew_generator_url Condition="'$(LOCAL_FOLDER)'==''">https://gist.github.com/421cb7df499b7515e6f5e278e4335b87.git</glew_generator_url>
+    <glew_generator_url Condition="'$(LOCAL_FOLDER)'!=''">$(LOCAL_FOLDER)\glew_generator</glew_generator_url>
+    <glew_generator_destination>$(ProjectDir)glew_generator</glew_generator_destination>
+    <glew_generator_destination Condition="Exists('$(ProjectDir)..\..\auto')">$(ProjectDir)..\..\auto\glew_generator</glew_generator_destination>
+    <glew_generator_destination Condition="''!='$(NO_GIT)'">$(glew_generator_url)</glew_generator_destination>
+    <glew_generator_hash>...</glew_generator_hash>
+  </PropertyGroup>
+
+  <Target Name="download_glew_generator" Condition="''=='$(NO_GIT)'">
+    <Message Importance="normal" Text="--------------------------------------------------------------------" />
+    <Message Importance="normal" Text="Downloading glew_generator" />
+    <Message Importance="normal" Text="--------------------------------------------------------------------" />
+
+    <Message Importance="low" Text="git clone $(glew_generator_url) $(glew_generator_destination)" />
+
+    <Exec
+      Command="git --version"
+      WorkingDirectory="$(ProjectDir)" />
+
+    <Exec
+      Condition="!Exists('$(glew_generator_destination)\.git\HEAD')"
+      Command="git clone $(glew_generator_url) $(glew_generator_destination)"
+      WorkingDirectory="$(ProjectDir)" />
+
+    <Exec
+      Condition="Exists('$(glew_generator_destination)\.git\HEAD')"
+      Command="git log -1"
+      WorkingDirectory="$(glew_generator_destination)" />
+  </Target>
+
+  <ItemGroup Label="ProjectsToBuild">
+    <ProjectsToBuild Include="$(glew_generator_destination)\glew_generator.vcxproj" />
+  </ItemGroup>
+
+  <Target Name="glew_generator">
+    <Message Importance="low" Text="MSBuildToolsVersion is $(MSBuildToolsVersion)" />
+    <Message Importance="low" Text="Platform is $(Platform)" />
+    <Message Importance="low" Text="PlatformToolset is $(PlatformToolset)" />
+    <Message Importance="low" Text="LOCAL_FOLDER is $(LOCAL_FOLDER)" />
+    <Message Importance="low" Text="NO_GIT is $(NO_GIT)" />
+
+    <MSBuild
+      Condition="'$(Platform)' == 'Win32' Or '$(Platform)' == 'x64'"
+      BuildInParallel="true"
+      Projects="@(ProjectsToBuild)"
+      Properties="Configuration=Release;Platform=$(Platform);PlatformToolset=$(PlatformToolset);LOCAL_FOLDER=$(LOCAL_FOLDER);NO_GIT=$(NO_GIT)" />
+
+    <MSBuild
+      Condition="'$(Platform)' != 'Win32' And '$(Platform)' != 'x64'"
+      BuildInParallel="true"
+      Projects="@(ProjectsToBuild)"
+      Properties="Configuration=Release;Platform=Win32;PlatformToolset=$(PlatformToolset);LOCAL_FOLDER=$(LOCAL_FOLDER);NO_GIT=$(NO_GIT)" />
+  </Target>
+
+</Project>
